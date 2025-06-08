@@ -7,33 +7,24 @@ import re
 import os
 
 load_dotenv()
-# Токен бота (замените на ваш токен)
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot(BOT_TOKEN)
 
-# Инициализация базы данных при запуске
 init_db()
 
-# Словарь для хранения состояний пользователей
 user_states = {}
 
-
-# Клавиатура главного меню
 def main_keyboard():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row("➕ Добавить задачу", "📋 Мои задачи")
     keyboard.row("🗑️ Очистить все", "ℹ️ Помощь")
     return keyboard
 
-
-# Клавиатура отмены
 def cancel_keyboard():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row("❌ Отмена")
     return keyboard
 
-
-# Команда /start
 @bot.message_handler(commands=['start'])
 def start_command(message):
     user_name = message.from_user.first_name
@@ -43,8 +34,6 @@ def start_command(message):
 
     bot.send_message(message.chat.id, welcome_text, reply_markup=main_keyboard())
 
-
-# Команда /help
 @bot.message_handler(commands=['help'])
 def help_command(message):
     help_text = "🤖 Как пользоваться ботом:\n\n"
@@ -57,8 +46,6 @@ def help_command(message):
 
     bot.send_message(message.chat.id, help_text, reply_markup=main_keyboard())
 
-
-# Обработка кнопок меню
 @bot.message_handler(
     func=lambda message: message.text in ["➕ Добавить задачу", "📋 Мои задачи", "🗑️ Очистить все", "ℹ️ Помощь"])
 def handle_menu_buttons(message):
@@ -79,8 +66,6 @@ def handle_menu_buttons(message):
     elif message.text == "ℹ️ Помощь":
         help_command(message)
 
-
-# Показать задачи пользователя
 def show_tasks(message):
     user_id = message.from_user.id
     tasks = get_tasks(user_id)
@@ -97,8 +82,6 @@ def show_tasks(message):
 
     bot.send_message(message.chat.id, tasks_text, reply_markup=main_keyboard())
 
-
-# Подтверждение очистки всех задач
 def confirm_clear(message):
     user_id = message.from_user.id
     tasks = get_tasks(user_id)
@@ -119,8 +102,6 @@ def confirm_clear(message):
                      f"🗑️ Вы уверены, что хотите удалить все {len(tasks)} задач(и)?",
                      reply_markup=keyboard)
 
-
-# Обработка callback кнопок
 @bot.callback_query_handler(func=lambda call: True)
 def handle_callbacks(call):
     user_id = call.from_user.id
@@ -146,8 +127,6 @@ def handle_callbacks(call):
                          "Ваши задачи сохранены.",
                          reply_markup=main_keyboard())
 
-
-# Обработка отмены
 @bot.message_handler(func=lambda message: message.text == "❌ Отмена")
 def handle_cancel(message):
     user_id = message.from_user.id
@@ -158,8 +137,6 @@ def handle_cancel(message):
                      "❌ Операция отменена.",
                      reply_markup=main_keyboard())
 
-
-# Обработка текстовых сообщений (добавление задач)
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
     user_id = message.from_user.id
@@ -173,7 +150,6 @@ def handle_text(message):
     state = user_states[user_id]
 
     if state == "waiting_task_description":
-        # Сохраняем описание задачи и запрашиваем время
         user_states[user_id] = {
             'state': 'waiting_task_time',
             'description': message.text
@@ -183,10 +159,8 @@ def handle_text(message):
                          reply_markup=cancel_keyboard())
 
     elif isinstance(state, dict) and state['state'] == 'waiting_task_time':
-        # Валидация и сохранение времени
         time_text = message.text.strip()
 
-        # Простая валидация времени
         if validate_time(time_text):
             description = state['description']
             add_task(user_id, description, time_text)
@@ -203,27 +177,20 @@ def handle_text(message):
                              "Примеры: 14:30, 9:00, утром, днем, вечером",
                              reply_markup=cancel_keyboard())
 
-
-# Функция валидации времени
 def validate_time(time_str):
-    # Проверка формата ЧЧ:ММ
     time_pattern = r'^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'
     if re.match(time_pattern, time_str):
         return True
 
-    # Проверка словесного описания времени
     time_words = ['утром', 'утро', 'днем', 'день', 'вечером', 'вечер', 'ночью', 'ночь']
     if time_str.lower() in time_words:
         return True
 
-    # Дополнительные варианты
     if len(time_str) > 0 and len(time_str) < 50:
         return True
 
     return False
 
-
-# Обработка ошибок
 @bot.message_handler(content_types=['photo', 'video', 'audio', 'document', 'voice', 'sticker'])
 def handle_media(message):
     bot.send_message(message.chat.id,
