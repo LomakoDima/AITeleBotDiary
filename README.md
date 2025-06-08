@@ -23,7 +23,7 @@
 1. Клонируй репозиторий:
 
     ```bash
-    git clone https://github.com/yourusername/dailybot.git
+    git clone https://github.com/LomakoDima/AITeleBotDiary.git
     cd AITeleBotDiary
     ```
 
