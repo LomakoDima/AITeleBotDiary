@@ -2,11 +2,8 @@ import sqlite3
 from datetime import datetime
 import os
 
-# Путь к базе данных
 DB_PATH = "tasks.db"
 
-
-# Инициализация базы данных
 def init_db():
     """Создает базу данных и таблицу tasks, если они не существуют"""
     try:
@@ -27,8 +24,6 @@ def init_db():
     except sqlite3.Error as e:
         print(f"❌ Ошибка инициализации базы данных: {e}")
 
-
-# Добавление задачи
 def add_task(user_id: int, description: str, time: str):
     """Добавляет новую задачу для пользователя"""
     try:
@@ -45,8 +40,6 @@ def add_task(user_id: int, description: str, time: str):
         print(f"❌ Ошибка добавления задачи: {e}")
         return False
 
-
-# Получение задач пользователя
 def get_tasks(user_id: int):
     """Возвращает все задачи пользователя, отсортированные по времени создания"""
     try:
@@ -78,8 +71,6 @@ def get_tasks_count(user_id: int):
         print(f"❌ Ошибка подсчета задач: {e}")
         return 0
 
-
-# Удаление всех задач пользователя
 def clear_tasks(user_id: int):
     """Удаляет все задачи пользователя"""
     try:
@@ -94,8 +85,6 @@ def clear_tasks(user_id: int):
         print(f"❌ Ошибка удаления задач: {e}")
         return 0
 
-
-# Удаление конкретной задачи по ID
 def delete_task(user_id: int, task_id: int):
     """Удаляет конкретную задачу пользователя по ID"""
     try:
@@ -113,8 +102,6 @@ def delete_task(user_id: int, task_id: int):
         print(f"❌ Ошибка удаления задачи: {e}")
         return False
 
-
-# Получение задач с ID (для удаления конкретных задач)
 def get_tasks_with_id(user_id: int):
     """Возвращает все задачи пользователя с их ID"""
     try:
@@ -131,25 +118,19 @@ def get_tasks_with_id(user_id: int):
         print(f"❌ Ошибка получения задач с ID: {e}")
         return []
 
-
-# Проверка существования базы данных
 def check_db_exists():
     """Проверяет, существует ли файл базы данных"""
     return os.path.exists(DB_PATH)
 
-
-# Получение статистики базы данных
 def get_db_stats():
     """Возвращает общую статистику базы данных"""
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
 
-        # Общее количество задач
         cursor.execute("SELECT COUNT(*) FROM tasks")
         total_tasks = cursor.fetchone()[0]
 
-        # Количество уникальных пользователей
         cursor.execute("SELECT COUNT(DISTINCT user_id) FROM tasks")
         unique_users = cursor.fetchone()[0]
 
