@@ -58,9 +58,18 @@
 ## 🧠 Пример логики добавления задачи
 
 ```python
-def add_task(user_id: int, text: str, time: datetime):
-    conn = sqlite3.connect("tasks.db")
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO tasks (user_id, text, time) VALUES (?, ?, ?)", (user_id, text, time))
-    conn.commit()
-    conn.close()
+def add_task(user_id: int, description: str, time: str):
+    """Добавляет новую задачу для пользователя"""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO tasks (user_id, description, time) VALUES (?, ?, ?)",
+            (user_id, description.strip(), time.strip())
+        )
+        conn.commit()
+        conn.close()
+        return True
+    except sqlite3.Error as e:
+        print(f"❌ Ошибка добавления задачи: {e}")
+        return False
