@@ -24,7 +24,7 @@
 
     ```bash
     git clone https://github.com/yourusername/dailybot.git
-    cd dailybot
+    cd AITeleBotDiary
     ```
 
 2. Установи зависимости:
